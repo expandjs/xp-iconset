@@ -1,8 +1,8 @@
 {
   "name": "xp-iconset",
   "license": "BSD-3-Clause",
-  "version": "0.8.4",
-  "description": "This element is used to define a set of icons.",
+  "version": "0.8.5",
+  "description": "A custom element used to define a set of svg icons",
   "homepage": "http://www.expandjs.com/elements/xp-iconset",
   "authors": [
     "Giuliano Rullo <g.rullo@expandjs.com>",

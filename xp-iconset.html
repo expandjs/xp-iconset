@@ -7,31 +7,33 @@ The complete set of contributors may be found at https://expandjs.github.io/CONT
 -->
 
 <!--
-This element is used to define a set of icons.
+A custom element used to define a set of icons.
 
-It can be used in conjunction with xp-icon.
+It can be used in conjunction with
+[xp-icon](http://expandjs.com/elements/xp-icon).
 
 @element xp-iconset
-@description A custom element used to define a set of svg icons
-@keywords web app, html5, expandjs, web-components
+@description A custom element used to define a set of icons
+@keywords expandjs, web app, custom elements, web-components
 @group functionality
+@hot
+
 @homepage http://expandjs.com/elements/xp-iconset
 @repository https://github.com/ExpandJS/xp-iconset
 
-@behavior xp-array-behavior /bower_components/xp-array-behavior/xp-array-behavior.html
+@behavior xp-iconset-finder /bower_components/xp-iconset/xp-iconset-finder.html
 
-@dependency polymer Polymer/polymer#^1.1.0
-@dependency expandjs ExpandJS/expandjs#0.9.11
-@dependency xp-array-behavior ExpandJS/xp-array-behavior#0.9.11
+@dependency polymer Polymer/polymer#^1.2.0
+@dependency expandjs ExpandJS/expandjs#0.10.0
 -->
 
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../expandjs/expandjs.html">
-<link rel="import" href="../xp-array-behavior/xp-array-behavior.html">
+<link rel="import" href="xp-iconset-finder.html">
 
 <dom-module id="xp-iconset">
 
-    <template>
+    <template strip-whitespace>
 
         <style>
             :host {
@@ -39,7 +41,7 @@ It can be used in conjunction with xp-icon.
             }
         </style>
 
-        <content id="content"></content>
+        <content></content>
 
     </template>
 
@@ -51,8 +53,19 @@ It can be used in conjunction with xp-icon.
 
             // BEHAVIORS
             behaviors: [
-                Polymer.XPArrayBehavior
+                Polymer.XPIconsetFinder
             ],
+
+            /*********************************************************************/
+
+            /**
+             * Fired when the iconset name changes.
+             *
+             * @event xp-iconset
+             * @param {Element} firer
+             * @param {string} name
+             * @bubbles
+             */
 
             /*********************************************************************/
 
@@ -60,7 +73,7 @@ It can be used in conjunction with xp-icon.
              * Returns a copy of an iconset's icon.
              *
              * @method findIcon
-             * @param {string} [name = ""]
+             * @param {string} name
              * @returns {Node}
              */
             findIcon: function (name) {
@@ -69,27 +82,15 @@ It can be used in conjunction with xp-icon.
                 XP.assertArgument(XP.isVoid(name) || XP.isString(name), 1, 'string');
 
                 // Vars
-                var self    = this,
-                    wrapper = name ? XP.getDistributedElement(Polymer.dom((self.instance || self).$.content), 'svg') : null,
-                    icon    = wrapper ? XP.getElement(Polymer.dom(wrapper), 'g[id="' + name + '"]') : null,
-                    clone   = icon ? icon.cloneNode(true) : null;
+                var self  = this,
+                    wrap  = name ? XP.findElement(Polymer.dom(self), 'svg') : null,
+                    icon  = wrap ? XP.getElement(Polymer.dom(wrap), 'g[id="' + name + '"]') : null,
+                    clone = icon ? icon.cloneNode(true) : null;
 
                 // Cleaning
                 if (clone) { clone.removeAttribute('id'); }
 
                 return clone;
-            },
-
-            /**
-             * Returns an iconset instance.
-             *
-             * @method findInstance
-             * @param {string} [name = ""]
-             * @returns {Element}
-             */
-            findInstance: function (name) {
-                XP.assertArgument(XP.isVoid(name) || XP.isString(name), 1, 'string');
-                return (name && XP.find(this.instances, function (instance) { return name === instance.name; })) || null;
             },
 
             /*********************************************************************/
@@ -98,68 +99,27 @@ It can be used in conjunction with xp-icon.
             properties: {
 
                 /**
-                 * The iconset's instance.
-                 *
-                 * @attribute instance
-                 * @type Element
-                 * @notifies
-                 * @readonly
-                 */
-                instance: {
-                    computed: '_computeInstance(name, refers)',
-                    notify: true,
-                    type: Object,
-                    value: null
-                },
-
-                /**
-                 * The instance's name.
+                 * The iconset's name.
                  *
                  * @attribute name
                  * @type string
+                 * @default ""
                  */
                 name: {
                     observer: '_nameChanged',
                     reflectToAttribute: true,
                     type: String,
-                    value: null
-                },
-
-                /**
-                 * The referred instance's name.
-                 *
-                 * @attribute refers
-                 * @type string
-                 */
-                refers: {
-                    reflectToAttribute: true,
-                    type: String,
-                    value: null
+                    value: ''
                 }
-            },
-
-            /**
-             * The list of instances.
-             *
-             * @property instances
-             * @type Array
-             * @default []
-             * @readonly
-             */
-            instances: [],
-
-            /*********************************************************************/
-
-            // COMPUTER
-            _computeInstance: function (name, refers) {
-                return (!name && this.findInstance(refers)) || null;
             },
 
             /*********************************************************************/
 
             // OBSERVER
-            _nameChanged: function (post) {
-                this[post ? 'append' : 'pull']('instances', this);
+            _nameChanged: function () {
+
+                // Firing
+                this.fire('xp-iconset', {firer: this.icons[this.name] = this, name: this.name}, {node: window});
             }
         });
     </script>
